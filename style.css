@@ -388,3 +388,60 @@
     stroke-dashoffset: -440;
   }
 }
+
+#watermarkContainer {
+  margin-top: 20px;
+}
+
+#watermarkInputButton {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+#watermarkInputButton:hover {
+  background-color: #0056b3;
+}
+
+#watermarkNote {
+  display: block;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  font-size: 12px;
+  color: #6c757d;
+}
+
+#watermarkPreview {
+  margin-top: 10px;
+}
+
+.watermark-preview-item {
+  display: inline-block;
+  position: relative;
+  margin-right: 10px;
+}
+
+.watermark-preview-item img {
+  max-width: 100px;
+  max-height: 100px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.watermark-preview-item button {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: red;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  font-size: 14px;
+}
