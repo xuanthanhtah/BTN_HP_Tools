@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BTN Hiệp Phú tool</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-load-image/5.16.0/load-image.all.min.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Thêm Watermark vào Ảnh</h1>
+
+      <!-- Chọn ảnh và options -->
+      <div class="select-options">
+        <label for="imageInput" class="custom-file-upload">Chọn ảnh</label>
+        <input
+          type="file"
+          id="imageInput"
+          multiple
+          accept="image/*"
+          style="display: none"
+        />
+
+        <div class="option-toggle">
+          <label>
+            <input
+              type="radio"
+              name="watermarkOption"
+              value="position"
+              checked
+            />
+            Chọn vị trí cố định
+          </label>
+          <label>
+            <input type="radio" name="watermarkOption" value="custom" />
+            Nhập tọa độ
+          </label>
+        </div>
+      </div>
+
+      <!-- Vị trí watermark và nhập tọa độ -->
+      <div class="position-coordinates">
+        <div id="positionSelectWrapper">
+          <label for="positionSelect">Vị trí watermark:</label>
+          <select id="positionSelect">
+            <option value="bottom-right">Dưới phải</option>
+            <option value="bottom-left">Dưới trái</option>
+            <option value="top-right">Trên phải</option>
+            <option value="top-left">Trên trái</option>
+          </select>
+        </div>
+
+        <div id="customPositionWrapper" style="display: none">
+          <label for="customPosition">Nhập tọa độ:</label>
+          <input
+            type="text"
+            id="customPosition"
+            placeholder="Nhập x,y (ví dụ: 50,50)"
+          />
+        </div>
+
+        <button id="processButton">Thêm Watermark & Tải xuống</button>
+        <button id="clearButton">Xóa toàn bộ ảnh đã chọn</button>
+      </div>
+
+      <div id="imagePreviewContainer" class="image-preview-container"></div>
+    </div>
+    <!-- logo -->
+    <div class="loading" id="loading" style="display: none">
+      <svg class="pl" width="240" height="240" viewBox="0 0 240 240">
+        <circle
+          class="pl__ring pl__ring--a"
+          cx="120"
+          cy="120"
+          r="105"
+          fill="none"
+          stroke="#000"
+          stroke-width="20"
+          stroke-dasharray="0 660"
+          stroke-dashoffset="-330"
+          stroke-linecap="round"
+        ></circle>
+        <circle
+          class="pl__ring pl__ring--b"
+          cx="120"
+          cy="120"
+          r="35"
+          fill="none"
+          stroke="#000"
+          stroke-width="20"
+          stroke-dasharray="0 220"
+          stroke-dashoffset="-110"
+          stroke-linecap="round"
+        ></circle>
+        <circle
+          class="pl__ring pl__ring--c"
+          cx="85"
+          cy="120"
+          r="70"
+          fill="none"
+          stroke="#000"
+          stroke-width="20"
+          stroke-dasharray="0 440"
+          stroke-linecap="round"
+        ></circle>
+        <circle
+          class="pl__ring pl__ring--d"
+          cx="155"
+          cy="120"
+          r="70"
+          fill="none"
+          stroke="#000"
+          stroke-width="20"
+          stroke-dasharray="0 440"
+          stroke-linecap="round"
+        ></circle>
+      </svg>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
