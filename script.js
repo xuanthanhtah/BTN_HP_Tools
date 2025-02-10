@@ -20,6 +20,67 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let customWatermark = null; // Watermark do người dùng tải lên
 
+  const sizeInput = document.getElementById("sizeInput");
+  const sizeValue = document.getElementById("sizeValue");
+
+  sizeInput.addEventListener("input", updateSizeValue);
+
+  function updateSizeValue() {
+    sizeValue.textContent = `${sizeInput.value}%`;
+  }
+
+  // Sửa hàm getWatermarkPosition
+  function getWatermarkPosition(img, watermarkImg) {
+    const selectedOption = document.querySelector(
+      'input[name="watermarkOption"]:checked'
+    ).value;
+  
+    // Lấy giá trị kích thước từ input
+    const sizePercent = parseInt(sizeInput.value) || 20;
+    const watermarkWidth = img.width * (sizePercent / 100);
+    const watermarkHeight = 
+      (watermarkImg.height / watermarkImg.width) * watermarkWidth;
+  
+    if (selectedOption === "custom") {
+      const customPosition = document
+        .getElementById("customPosition")
+        .value.trim();
+      const [x, y] = customPosition.split(",").map(Number);
+      return {
+        x: x || 0,
+        y: y || 0,
+        width: watermarkWidth,
+        height: watermarkHeight,
+      };
+    }
+  
+    let x = 0,
+      y = 0;
+    const positionSelect = document.getElementById("positionSelect").value;
+  
+    switch (positionSelect) {
+      case "top-left":
+        x = 25;
+        y = 25;
+        break;
+      case "top-right":
+        x = img.width - watermarkWidth - 25;
+        y = 25;
+        break;
+      case "bottom-left":
+        x = 25;
+        y = img.height - watermarkHeight - 25;
+        break;
+      case "bottom-right":
+      default:
+        x = img.width - watermarkWidth - 25;
+        y = img.height - watermarkHeight - 25;
+        break;
+    }
+  
+    return { x, y, width: watermarkWidth, height: watermarkHeight };
+  }
+
   // Tạo input ẩn để tải watermark
   const watermarkInput = document.createElement("input");
   watermarkInput.type = "file";
@@ -212,54 +273,5 @@ document.addEventListener("DOMContentLoaded", () => {
     );
 
     return canvas;
-  }
-
-  function getWatermarkPosition(img, watermarkImg) {
-    const selectedOption = document.querySelector(
-      'input[name="watermarkOption"]:checked'
-    ).value;
-
-    const watermarkWidth = img.width * 0.2;
-    const watermarkHeight =
-      (watermarkImg.height / watermarkImg.width) * watermarkWidth;
-
-    if (selectedOption === "custom") {
-      const customPosition = document
-        .getElementById("customPosition")
-        .value.trim();
-      const [x, y] = customPosition.split(",").map(Number);
-      return {
-        x: x || 0,
-        y: y || 0,
-        width: watermarkWidth,
-        height: watermarkHeight,
-      };
-    }
-
-    let x = 0,
-      y = 0;
-    const positionSelect = document.getElementById("positionSelect").value;
-
-    switch (positionSelect) {
-      case "top-left":
-        x = 10;
-        y = 10;
-        break;
-      case "top-right":
-        x = img.width - watermarkWidth - 10;
-        y = 10;
-        break;
-      case "bottom-left":
-        x = 10;
-        y = img.height - watermarkHeight - 10;
-        break;
-      case "bottom-right":
-      default:
-        x = img.width - watermarkWidth - 10;
-        y = img.height - watermarkHeight - 10;
-        break;
-    }
-
-    return { x, y, width: watermarkWidth, height: watermarkHeight };
   }
 });
