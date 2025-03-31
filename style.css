@@ -456,3 +456,9 @@
 .size-control input[type="range"] {
   width: 200px;
 }
+
+.image-preview video {
+  max-width: 200px;
+  height: auto;
+  margin: 5px;
+}

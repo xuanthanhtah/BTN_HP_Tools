@@ -34,13 +34,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const selectedOption = document.querySelector(
       'input[name="watermarkOption"]:checked'
     ).value;
-  
+
     // Lấy giá trị kích thước từ input
-    const sizePercent = parseInt(sizeInput.value) || 20;
+    const sizePercent = parseInt(sizeInput.value) || 10;
     const watermarkWidth = img.width * (sizePercent / 100);
-    const watermarkHeight = 
+    const watermarkHeight =
       (watermarkImg.height / watermarkImg.width) * watermarkWidth;
-  
+
     if (selectedOption === "custom") {
       const customPosition = document
         .getElementById("customPosition")
@@ -53,11 +53,11 @@ document.addEventListener("DOMContentLoaded", () => {
         height: watermarkHeight,
       };
     }
-  
+
     let x = 0,
       y = 0;
     const positionSelect = document.getElementById("positionSelect").value;
-  
+
     switch (positionSelect) {
       case "top-left":
         x = 25;
@@ -77,7 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
         y = img.height - watermarkHeight - 25;
         break;
     }
-  
+
     return { x, y, width: watermarkWidth, height: watermarkHeight };
   }
 
@@ -141,20 +141,45 @@ document.addEventListener("DOMContentLoaded", () => {
     const previewElement = document.createElement("div");
     previewElement.className = "image-preview";
 
-    reader.onload = (event) => {
-      previewElement.innerHTML = `
-              <img src="${event.target.result}" alt="${file.name}">
-              <button data-file="${file.name}">&times;</button>
-            `;
+    if (file.type.startsWith("video/")) {
+      // Handle video files
+      reader.onload = (event) => {
+        previewElement.innerHTML = `
+          <video controls width="200">
+            <source src="${event.target.result}" type="${file.type}">
+          </video>
+          <button data-file="${file.name}">&times;</button>
+        `;
 
-      previewElement.querySelector("button").addEventListener("click", (e) => {
-        const fileName = e.target.dataset.file;
-        selectedFiles.delete(fileName);
-        previewElement.remove();
-      });
+        previewElement
+          .querySelector("button")
+          .addEventListener("click", (e) => {
+            const fileName = e.target.dataset.file;
+            selectedFiles.delete(fileName);
+            previewElement.remove();
+          });
 
-      imagePreviewContainer.appendChild(previewElement);
-    };
+        imagePreviewContainer.appendChild(previewElement);
+      };
+    } else {
+      // Existing image handling code
+      reader.onload = (event) => {
+        previewElement.innerHTML = `
+          <img src="${event.target.result}" alt="${file.name}">
+          <button data-file="${file.name}">&times;</button>
+        `;
+
+        previewElement
+          .querySelector("button")
+          .addEventListener("click", (e) => {
+            const fileName = e.target.dataset.file;
+            selectedFiles.delete(fileName);
+            previewElement.remove();
+          });
+
+        imagePreviewContainer.appendChild(previewElement);
+      };
+    }
 
     reader.readAsDataURL(file);
   }
@@ -211,18 +236,85 @@ document.addEventListener("DOMContentLoaded", () => {
     const zip = new JSZip();
 
     for (let [fileName, file] of selectedFiles) {
-      const img = await loadImageFromFile(file);
-      const watermarkedImg = addWatermark(img, watermarkImg);
-      const dataURL = watermarkedImg.toDataURL("image/jpeg");
-      zip.file(fileName, dataURL.split(",")[1], { base64: true });
+      if (file.type.startsWith("video/")) {
+        await processVideo(file, watermarkImg, zip, fileName);
+      } else {
+        const img = await loadImageFromFile(file);
+        const watermarkedImg = addWatermark(img, watermarkImg);
+        const dataURL = watermarkedImg.toDataURL("image/jpeg");
+        zip.file(fileName, dataURL.split(",")[1], { base64: true });
+      }
     }
 
     zip.generateAsync({ type: "blob" }).then((blob) => {
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
-      link.download = "watermarked_images.zip";
+      link.download = "watermarked_files.zip";
       link.click();
       document.getElementById("loading").style.display = "none";
+    });
+  }
+
+  async function processVideo(videoFile, watermarkImg, zip, fileName) {
+    return new Promise((resolve, reject) => {
+      const video = document.createElement("video");
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+
+      video.src = URL.createObjectURL(videoFile);
+      video.addEventListener("loadedmetadata", () => {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+
+        const position = getWatermarkPosition(
+          { width: video.videoWidth, height: video.videoHeight },
+          watermarkImg
+        );
+
+        const stream = canvas.captureStream();
+        const mediaRecorder = new MediaRecorder(stream, {
+          mimeType: "video/mp4;codecs=avc1.42E01E",
+        });
+
+        const chunks = [];
+        mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
+        mediaRecorder.onstop = async () => {
+          const blob = new Blob(chunks, { type: "video/mp4" });
+          const arrayBuffer = await blob.arrayBuffer();
+          zip.file(
+            fileName.replace(/\.[^/.]+$/, "") + "_watermarked.mp4",
+            arrayBuffer
+          );
+          resolve();
+        };
+
+        video.addEventListener("play", function () {
+          function drawFrame() {
+            if (!video.paused && !video.ended) {
+              ctx.drawImage(video, 0, 0);
+              ctx.globalAlpha = 0.5;
+              ctx.drawImage(
+                watermarkImg,
+                position.x,
+                position.y,
+                position.width,
+                position.height
+              );
+              ctx.globalAlpha = 1.0;
+              requestAnimationFrame(drawFrame);
+            }
+          }
+          drawFrame();
+        });
+
+        mediaRecorder.start();
+        video.play();
+
+        video.addEventListener("ended", () => {
+          mediaRecorder.stop();
+          URL.revokeObjectURL(video.src);
+        });
+      });
     });
   }
 

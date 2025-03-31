@@ -28,7 +28,7 @@
           type="file"
           id="imageInput"
           multiple
-          accept="image/*"
+          accept="image/*,video/*"
           style="display: none"
         />
 
@@ -53,8 +53,8 @@
       <div class="position-coordinates">
         <div class="size-control">
           <label for="sizeInput">Kích thước watermark so với ảnh: </label>
-          <input type="range" id="sizeInput" min="1" max="100" value="20">
-          <span id="sizeValue">20%</span>
+          <input type="range" id="sizeInput" min="1" max="100" value="10" />
+          <span id="sizeValue">10%</span>
         </div>
         <div id="positionSelectWrapper">
           <label for="positionSelect">Vị trí watermark:</label>
@@ -130,7 +130,7 @@
           stroke-dasharray="0 440"
           stroke-linecap="round"
         ></circle>
-      </svg>      
+      </svg>
     </div>
 
     <script src="script.js"></script>
